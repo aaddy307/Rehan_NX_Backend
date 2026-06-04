@@ -28,12 +28,14 @@ export const login = async (req, res, next) => {
 
     const token = signToken(admin._id)
 
-    res.cookie('token', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
+    }
+
+    res.cookie('token', token, cookieOptions)
 
     res.json({
       success: true,
@@ -53,6 +55,8 @@ export const logout = async (req, res, next) => {
   try {
     res.cookie('token', '', {
       httpOnly: true,
+      secure: true,
+      sameSite: 'none',
       expires: new Date(0),
     })
     res.json({
@@ -68,7 +72,12 @@ export const me = async (req, res, next) => {
   try {
     res.json({
       success: true,
-      admin: req.admin,
+      admin: {
+        id: req.admin._id,
+        name: req.admin.name,
+        email: req.admin.email,
+        role: req.admin.role,
+      },
     })
   } catch (error) {
     next(error)
