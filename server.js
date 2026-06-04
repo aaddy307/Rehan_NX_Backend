@@ -21,7 +21,22 @@ connectDB()
 const app = express()
 
 app.use(helmet())
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }))
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'https://rehan-nx-frontend.vercel.app',
+      'https://rehan-nx-frontend.vercel.app/',
+      'http://localhost:3000',
+    ]
+    const normalizedOrigin = origin ? origin.replace(/\/$/, '') : origin
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes(normalizedOrigin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true,
+}))
 app.use(express.json())
 app.use(cookieParser())
 app.use(mongoSanitize())
