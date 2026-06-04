@@ -11,7 +11,6 @@ import authRoutes from './routes/authRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
 import brandRoutes from './routes/brandRoutes.js'
-import bannerRoutes from './routes/bannerRoutes.js'
 import inquiryRoutes from './routes/inquiryRoutes.js'
 import settingsRoutes from './routes/settingsRoutes.js'
 import { errorHandler } from './middleware/errorMiddleware.js'
@@ -52,7 +51,6 @@ app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/products', productRoutes)
 app.use('/api/v1/categories', categoryRoutes)
 app.use('/api/v1/brands', brandRoutes)
-app.use('/api/v1/banners', bannerRoutes)
 app.use('/api/v1/inquiries', inquiryRoutes)
 app.use('/api/v1/settings', settingsRoutes)
 
