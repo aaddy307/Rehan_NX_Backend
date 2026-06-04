@@ -12,8 +12,8 @@ const bannerSchema = new mongoose.Schema(
       trim: true,
     },
     image: {
-      publicId: { type: String, required: true },
-      url: { type: String, required: true },
+      publicId: { type: String },
+      url: { type: String },
     },
     ctaText: {
       type: String,
