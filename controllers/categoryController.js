@@ -5,16 +5,22 @@ import { generateSlug } from '../utils/generateSlug.js'
 
 export const getCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find({ status: true }).sort({
+    const filter = {}
+    if (req.query.all !== 'true') {
+      filter.status = true
+    }
+
+    const categories = await Category.find(filter).sort({
       name: 1,
     })
 
     const categoriesWithCount = await Promise.all(
       categories.map(async (cat) => {
-        const count = await Product.countDocuments({
-          category: cat._id,
-          status: true,
-        })
+        const countFilter = { category: cat._id }
+        if (req.query.all !== 'true') {
+          countFilter.status = true
+        }
+        const count = await Product.countDocuments(countFilter)
         return {
           ...cat.toObject(),
           productCount: count,

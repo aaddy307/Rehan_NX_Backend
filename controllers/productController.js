@@ -9,7 +9,10 @@ export const getProducts = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 12
     const skip = (page - 1) * limit
 
-    const filter = { status: true }
+    const filter = {}
+    if (req.query.all !== 'true') {
+      filter.status = true
+    }
 
     if (req.query.search) {
       filter.name = { $regex: req.query.search, $options: 'i' }
