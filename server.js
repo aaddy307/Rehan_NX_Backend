@@ -26,7 +26,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://rehan-nx-frontend.vercel.app", "https://rehan-nx-backend.onrender.com"],
       fontSrc: ["'self'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -43,12 +43,31 @@ app.use(helmet({
   xssFilter: true,
 }))
 app.use(cors({
-  origin: (origin, callback) => {
-    const allowedDomains = [
-      'rehan-nx-frontend.vercel.app',
-      'localhost',
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'https://rehan-nx-frontend.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:5000',
     ]
-    if (!origin || allowedDomains.some(domain => origin.includes(domain))) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}))
+
+app.options('*', cors({
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'https://rehan-nx-frontend.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:5000',
+    ]
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
