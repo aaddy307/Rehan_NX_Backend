@@ -9,7 +9,7 @@ cloudinary.config({
 
 export const storage = (folder) =>
   new CloudinaryStorage({
-    cloudinary,
+    cloudinary: { v2: cloudinary },
     params: {
       folder,
       allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
@@ -18,3 +18,4 @@ export const storage = (folder) =>
   })
 
 export default cloudinary
+

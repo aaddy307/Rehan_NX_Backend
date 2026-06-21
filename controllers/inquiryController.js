@@ -23,8 +23,8 @@ export const createInquiry = async (req, res, next) => {
 
 export const getInquiries = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1
-    const limit = parseInt(req.query.limit) || 10
+    const page = Math.max(1, parseInt(req.query.page) || 1)
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10))
     const skip = (page - 1) * limit
 
     const total = await Inquiry.countDocuments()

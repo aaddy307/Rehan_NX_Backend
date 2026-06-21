@@ -85,6 +85,10 @@ export const updateCategory = async (req, res, next) => {
       status: status === 'true' || status === true,
     }
 
+    if (name && name !== category.name) {
+      updateData.slug = await generateSlug(name, Category)
+    }
+
     if (req.file) {
       if (category.image && category.image.publicId) {
         try {

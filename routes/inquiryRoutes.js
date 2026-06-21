@@ -15,9 +15,8 @@ router.post(
   [
     body('name').notEmpty().withMessage('Name is required'),
     body('phone')
-      .isLength({ min: 10, max: 10 })
-      .isNumeric()
-      .withMessage('Phone must be 10 digits'),
+      .isLength({ min: 10, max: 10 }).withMessage('Phone must be 10 digits')
+      .isNumeric().withMessage('Phone must be 10 digits'),
     body('message').notEmpty().withMessage('Message is required'),
   ],
   validate,

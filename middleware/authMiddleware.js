@@ -1,21 +1,22 @@
 import jwt from 'jsonwebtoken'
 import createError from 'http-errors'
+import Admin from '../models/Admin.js'
 
 export const authMiddleware = async (req, res, next) => {
   try {
     const token = req.cookies.token
-
     if (!token) {
       return next(createError.Unauthorized('Not authorized, no token'))
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-    if (decoded.email !== process.env.ADMIN_EMAIL) {
+    const admin = await Admin.findOne({ email: decoded.email })
+    if (!admin) {
       return next(createError.Unauthorized('Invalid token'))
     }
 
-    req.admin = { email: decoded.email }
+    req.admin = admin
     next()
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {

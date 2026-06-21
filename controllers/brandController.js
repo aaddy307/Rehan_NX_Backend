@@ -28,7 +28,7 @@ export const createBrand = async (req, res, next) => {
           publicId: req.file.filename,
           url: req.file.path,
         }
-      : {}
+      : null
 
     const brand = await Brand.create({
       name,
@@ -101,6 +101,14 @@ export const deleteBrand = async (req, res, next) => {
         message: 'Brand not found',
       })
     }
+    if (brand.logo && brand.logo.publicId) {
+      try {
+        await cloudinary.uploader.destroy(brand.logo.publicId)
+      } catch (err) {
+        console.error('Error deleting logo from Cloudinary:', err)
+      }
+    }
+
     await Brand.findByIdAndDelete(req.params.id)
     res.json({
       success: true,

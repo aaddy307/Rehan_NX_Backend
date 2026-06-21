@@ -5,8 +5,8 @@ import { generateSlug } from '../utils/generateSlug.js'
 
 export const getProducts = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1
-    const limit = parseInt(req.query.limit) || 12
+    const page = Math.max(1, parseInt(req.query.page) || 1)
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 12))
     const skip = (page - 1) * limit
 
     const filter = {}
@@ -20,9 +20,10 @@ export const getProducts = async (req, res, next) => {
 
     if (req.query.category) {
       const category = await Category.findOne({ slug: req.query.category })
-      if (category) {
-        filter.category = category._id
+      if (!category) {
+        return res.status(400).json({ success: false, message: 'Category not found' })
       }
+      filter.category = category._id
     }
 
     if (req.query.brand) {
@@ -66,12 +67,14 @@ export const getProducts = async (req, res, next) => {
 
 export const getProduct = async (req, res, next) => {
   try {
-    let product
+    const filter = {}
+    if (req.query.all !== 'true') {
+      filter.status = true
+    }
 
-    if (req.params.slug.match(/^[0-9a-fA-F]{24}$/)) {
-      product = await Product.findOne({ _id: req.params.slug, status: true }).populate('category', 'name slug')
-    } else {
-      product = await Product.findOne({ slug: req.params.slug, status: true }).populate('category', 'name slug')
+    let product = await Product.findOne({ ...filter, slug: req.params.slug }).populate('category', 'name slug')
+    if (!product && req.params.slug.match(/^[0-9a-fA-F]{24}$/)) {
+      product = await Product.findOne({ ...filter, _id: req.params.slug }).populate('category', 'name slug')
     }
 
     if (!product) {
@@ -173,6 +176,10 @@ export const updateProduct = async (req, res, next) => {
       specifications: specifications ? JSON.parse(specifications) : [],
       featured: featured === 'true' || featured === true,
       status: status === 'true' || status === true,
+    }
+
+    if (name && name !== product.name) {
+      updateData.slug = await generateSlug(name, Product)
     }
 
     if (req.files && req.files.length > 0) {

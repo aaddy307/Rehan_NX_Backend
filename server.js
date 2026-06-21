@@ -60,21 +60,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 
-app.options('*', cors({
-  origin: function(origin, callback) {
-    const allowedOrigins = [
-      'https://rehan-nx-frontend.vercel.app',
-      'http://localhost:3000',
-      'http://localhost:5000',
-    ]
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
-  credentials: true,
-}))
 app.use(express.json())
 app.use(cookieParser())
 app.use(mongoSanitize())
@@ -92,6 +77,10 @@ app.use('/api/v1/categories', categoryRoutes)
 app.use('/api/v1/brands', brandRoutes)
 app.use('/api/v1/inquiries', inquiryRoutes)
 app.use('/api/v1/settings', settingsRoutes)
+
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: 'Route not found' })
+})
 
 app.use(errorHandler)
 
