@@ -13,10 +13,6 @@ const brandSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    logo: {
-      publicId: String,
-      url: String,
-    },
     status: {
       type: Boolean,
       default: true,

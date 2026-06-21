@@ -46,6 +46,7 @@ export const getProducts = async (req, res, next) => {
     const total = await Product.countDocuments(filter)
     const products = await Product.find(filter)
       .populate('category', 'name slug')
+      .populate('brand', 'name')
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -72,9 +73,9 @@ export const getProduct = async (req, res, next) => {
       filter.status = true
     }
 
-    let product = await Product.findOne({ ...filter, slug: req.params.slug }).populate('category', 'name slug')
+    let product = await Product.findOne({ ...filter, slug: req.params.slug }).populate('category', 'name slug').populate('brand', 'name')
     if (!product && req.params.slug.match(/^[0-9a-fA-F]{24}$/)) {
-      product = await Product.findOne({ ...filter, _id: req.params.slug }).populate('category', 'name slug')
+      product = await Product.findOne({ ...filter, _id: req.params.slug }).populate('category', 'name slug').populate('brand', 'name')
     }
 
     if (!product) {
@@ -130,10 +131,9 @@ export const createProduct = async (req, res, next) => {
       status: status === 'true' || status === true,
     })
 
-    const populatedProduct = await Product.findById(product._id).populate(
-      'category',
-      'name slug'
-    )
+    const populatedProduct = await Product.findById(product._id)
+      .populate('category', 'name slug')
+      .populate('brand', 'name')
 
     res.status(201).json({
       success: true,
@@ -194,7 +194,7 @@ export const updateProduct = async (req, res, next) => {
       req.params.id,
       updateData,
       { new: true, runValidators: true }
-    ).populate('category', 'name slug')
+    ).populate('category', 'name slug').populate('brand', 'name')
 
     res.json({
       success: true,

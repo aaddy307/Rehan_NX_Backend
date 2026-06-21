@@ -1,5 +1,4 @@
 import Brand from '../models/Brand.js'
-import cloudinary from '../config/cloudinary.js'
 import { generateSlug } from '../utils/generateSlug.js'
 
 export const getBrands = async (req, res, next) => {
@@ -23,17 +22,9 @@ export const createBrand = async (req, res, next) => {
     const { name, status } = req.body
     const slug = await generateSlug(name, Brand)
 
-    const image = req.file
-      ? {
-          publicId: req.file.filename,
-          url: req.file.path,
-        }
-      : null
-
     const brand = await Brand.create({
       name,
       slug,
-      logo: image,
       status: status === 'true' || status === true,
     })
 
@@ -63,20 +54,6 @@ export const updateBrand = async (req, res, next) => {
       status: status === 'true' || status === true,
     }
 
-    if (req.file) {
-      if (brand.logo && brand.logo.publicId) {
-        try {
-          await cloudinary.uploader.destroy(brand.logo.publicId)
-        } catch (err) {
-          console.error('Error deleting old logo:', err)
-        }
-      }
-      updateData.logo = {
-        publicId: req.file.filename,
-        url: req.file.path,
-      }
-    }
-
     const updatedBrand = await Brand.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -100,13 +77,6 @@ export const deleteBrand = async (req, res, next) => {
         success: false,
         message: 'Brand not found',
       })
-    }
-    if (brand.logo && brand.logo.publicId) {
-      try {
-        await cloudinary.uploader.destroy(brand.logo.publicId)
-      } catch (err) {
-        console.error('Error deleting logo from Cloudinary:', err)
-      }
     }
 
     await Brand.findByIdAndDelete(req.params.id)

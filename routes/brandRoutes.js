@@ -8,7 +8,6 @@ import {
 } from '../controllers/brandController.js'
 import { validate } from '../middleware/validationMiddleware.js'
 import { authMiddleware } from '../middleware/authMiddleware.js'
-import { uploadCategoryImage } from '../middleware/uploadMiddleware.js'
 
 const router = express.Router()
 
@@ -17,7 +16,6 @@ router.get('/', getBrands)
 router.post(
   '/',
   authMiddleware,
-  uploadCategoryImage.single('logo'),
   [body('name').notEmpty().withMessage('Name is required')],
   validate,
   createBrand
@@ -26,7 +24,6 @@ router.post(
 router.put(
   '/:id',
   authMiddleware,
-  uploadCategoryImage.single('logo'),
   [body('name').notEmpty().withMessage('Name is required')],
   validate,
   updateBrand

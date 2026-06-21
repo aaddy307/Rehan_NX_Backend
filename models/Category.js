@@ -12,14 +12,6 @@ const categorySchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    description: {
-      type: String,
-      trim: true,
-    },
-    image: {
-      publicId: String,
-      url: String,
-    },
     status: {
       type: Boolean,
       default: true,

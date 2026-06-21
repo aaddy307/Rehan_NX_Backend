@@ -13,9 +13,9 @@ const productSchema = new mongoose.Schema(
       lowercase: true,
     },
     brand: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Brand',
       required: true,
-      trim: true,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,

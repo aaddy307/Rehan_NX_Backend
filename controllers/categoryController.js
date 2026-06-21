@@ -1,6 +1,5 @@
 import Category from '../models/Category.js'
 import Product from '../models/Product.js'
-import cloudinary from '../config/cloudinary.js'
 import { generateSlug } from '../utils/generateSlug.js'
 
 export const getCategories = async (req, res, next) => {
@@ -39,22 +38,13 @@ export const getCategories = async (req, res, next) => {
 
 export const createCategory = async (req, res, next) => {
   try {
-    const { name, description, status } = req.body
+    const { name, status } = req.body
 
     const slug = await generateSlug(name, Category)
-
-    const image = req.file
-      ? {
-          publicId: req.file.filename,
-          url: req.file.path,
-        }
-      : null
 
     const category = await Category.create({
       name,
       slug,
-      description,
-      image,
       status: status === 'true' || status === true,
     })
 
@@ -69,7 +59,7 @@ export const createCategory = async (req, res, next) => {
 
 export const updateCategory = async (req, res, next) => {
   try {
-    const { name, description, status } = req.body
+    const { name, status } = req.body
 
     const category = await Category.findById(req.params.id)
     if (!category) {
@@ -81,26 +71,11 @@ export const updateCategory = async (req, res, next) => {
 
     const updateData = {
       name,
-      description,
       status: status === 'true' || status === true,
     }
 
     if (name && name !== category.name) {
       updateData.slug = await generateSlug(name, Category)
-    }
-
-    if (req.file) {
-      if (category.image && category.image.publicId) {
-        try {
-          await cloudinary.uploader.destroy(category.image.publicId)
-        } catch (err) {
-          console.error('Error deleting old image:', err)
-        }
-      }
-      updateData.image = {
-        publicId: req.file.filename,
-        url: req.file.path,
-      }
     }
 
     const updatedCategory = await Category.findByIdAndUpdate(
@@ -137,14 +112,6 @@ export const deleteCategory = async (req, res, next) => {
         success: false,
         message: `Cannot delete category. ${productCount} product(s) linked to this category.`,
       })
-    }
-
-    if (category.image && category.image.publicId) {
-      try {
-        await cloudinary.uploader.destroy(category.image.publicId)
-      } catch (err) {
-        console.error('Error deleting image from Cloudinary:', err)
-      }
     }
 
     await Category.findByIdAndDelete(req.params.id)
