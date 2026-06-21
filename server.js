@@ -44,13 +44,11 @@ app.use(helmet({
 }))
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = [
-      'https://rehan-nx-frontend.vercel.app',
-      'https://rehan-nx-frontend.vercel.app/',
-      'http://localhost:3000',
+    const allowedDomains = [
+      'rehan-nx-frontend.vercel.app',
+      'localhost',
     ]
-    const normalizedOrigin = origin ? origin.replace(/\/$/, '') : origin
-    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes(normalizedOrigin)) {
+    if (!origin || allowedDomains.some(domain => origin.includes(domain))) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
