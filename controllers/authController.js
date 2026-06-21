@@ -1,24 +1,22 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import Admin from '../models/Admin.js'
 
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' })
+const signToken = (email) => {
+  return jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '7d' })
 }
 
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body
 
-    const admin = await Admin.findOne({ email })
-    if (!admin) {
+    if (email !== process.env.ADMIN_EMAIL) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials',
       })
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password)
+    const isMatch = await bcrypt.compare(password, process.env.ADMIN_PASSWORD)
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -26,7 +24,7 @@ export const login = async (req, res, next) => {
       })
     }
 
-    const token = signToken(admin._id)
+    const token = signToken(email)
 
     const cookieOptions = {
       httpOnly: true,
@@ -40,10 +38,10 @@ export const login = async (req, res, next) => {
     res.json({
       success: true,
       admin: {
-        id: admin._id,
-        name: admin.name,
-        email: admin.email,
-        role: admin.role,
+        id: email,
+        name: 'Admin',
+        email: process.env.ADMIN_EMAIL,
+        role: 'admin',
       },
     })
   } catch (error) {
@@ -73,10 +71,10 @@ export const me = async (req, res, next) => {
     res.json({
       success: true,
       admin: {
-        id: req.admin._id,
-        name: req.admin.name,
+        id: req.admin.email,
+        name: 'Admin',
         email: req.admin.email,
-        role: req.admin.role,
+        role: 'admin',
       },
     })
   } catch (error) {
