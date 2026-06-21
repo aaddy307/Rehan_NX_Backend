@@ -26,10 +26,13 @@ export const login = async (req, res, next) => {
 
     const token = signToken(email)
 
+    const isProduction = process.env.NODE_ENV === 'production'
+    const origin = req.get('origin')
+    const isCrossOrigin = origin && !origin.includes('localhost')
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     }
 
@@ -51,12 +54,14 @@ export const login = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    res.cookie('token', '', {
+    const isProduction = process.env.NODE_ENV === 'production'
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       expires: new Date(0),
-    })
+    }
+    res.cookie('token', '', cookieOptions)
     res.json({
       success: true,
       message: 'Logged out successfully',
