@@ -41,14 +41,14 @@ export const createCategory = async (req, res, next) => {
   try {
     const { name, description, status } = req.body
 
-    const slug = generateSlug(name)
+    const slug = await generateSlug(name, Category)
 
     const image = req.file
       ? {
           publicId: req.file.filename,
           url: req.file.path,
         }
-      : {}
+      : null
 
     const category = await Category.create({
       name,

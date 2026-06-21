@@ -69,7 +69,7 @@ export const getProduct = async (req, res, next) => {
     let product
 
     if (req.params.slug.match(/^[0-9a-fA-F]{24}$/)) {
-      product = await Product.findById(req.params.slug).populate('category', 'name slug')
+      product = await Product.findOne({ _id: req.params.slug, status: true }).populate('category', 'name slug')
     } else {
       product = await Product.findOne({ slug: req.params.slug, status: true }).populate('category', 'name slug')
     }
@@ -104,7 +104,7 @@ export const createProduct = async (req, res, next) => {
       status,
     } = req.body
 
-    const slug = generateSlug(name)
+    const slug = await generateSlug(name, Product)
 
     const images = req.files
       ? req.files.map((file) => ({
@@ -176,10 +176,11 @@ export const updateProduct = async (req, res, next) => {
     }
 
     if (req.files && req.files.length > 0) {
-      updateData.images = req.files.map((file) => ({
+      const newImages = req.files.map((file) => ({
         publicId: file.filename,
         url: file.path,
       }))
+      updateData.images = [...product.images, ...newImages]
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(

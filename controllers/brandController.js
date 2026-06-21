@@ -1,9 +1,14 @@
 import Brand from '../models/Brand.js'
+import cloudinary from '../config/cloudinary.js'
 import { generateSlug } from '../utils/generateSlug.js'
 
 export const getBrands = async (req, res, next) => {
   try {
-    const brands = await Brand.find().sort({ name: 1 })
+    const filter = {}
+    if (req.query.status !== undefined) {
+      filter.status = req.query.status === 'true'
+    }
+    const brands = await Brand.find(filter).sort({ name: 1 })
     res.json({
       success: true,
       brands,
@@ -16,7 +21,7 @@ export const getBrands = async (req, res, next) => {
 export const createBrand = async (req, res, next) => {
   try {
     const { name, status } = req.body
-    const slug = generateSlug(name)
+    const slug = await generateSlug(name, Brand)
 
     const image = req.file
       ? {
@@ -59,6 +64,13 @@ export const updateBrand = async (req, res, next) => {
     }
 
     if (req.file) {
+      if (brand.logo && brand.logo.publicId) {
+        try {
+          await cloudinary.uploader.destroy(brand.logo.publicId)
+        } catch (err) {
+          console.error('Error deleting old logo:', err)
+        }
+      }
       updateData.logo = {
         publicId: req.file.filename,
         url: req.file.path,
@@ -82,6 +94,13 @@ export const updateBrand = async (req, res, next) => {
 
 export const deleteBrand = async (req, res, next) => {
   try {
+    const brand = await Brand.findById(req.params.id)
+    if (!brand) {
+      return res.status(404).json({
+        success: false,
+        message: 'Brand not found',
+      })
+    }
     await Brand.findByIdAndDelete(req.params.id)
     res.json({
       success: true,

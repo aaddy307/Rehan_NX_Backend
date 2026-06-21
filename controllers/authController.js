@@ -30,7 +30,7 @@ export const login = async (req, res, next) => {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     }
@@ -55,7 +55,7 @@ export const logout = async (req, res, next) => {
   try {
     res.cookie('token', '', {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       expires: new Date(0),
     })

@@ -18,7 +18,7 @@ router.post(
   login
 )
 
-router.post('/logout', logout)
+router.post('/logout', authMiddleware, logout)
 
 router.get('/me', authMiddleware, me)
 
