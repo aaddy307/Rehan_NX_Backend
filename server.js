@@ -48,6 +48,7 @@ app.use(cors({
       'https://rehan-nx-frontend.vercel.app',
       'http://localhost:3000',
       'http://localhost:5000',
+      'https://rehannxmobiles.shop'
     ]
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true)
