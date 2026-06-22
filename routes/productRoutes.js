@@ -3,6 +3,7 @@ import { body } from 'express-validator'
 import {
   getProducts,
   getProduct,
+  getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -14,6 +15,7 @@ import { uploadProductImage } from '../middleware/uploadMiddleware.js'
 const router = express.Router()
 
 router.get('/', getProducts)
+router.get('/id/:id', authMiddleware, getProductById)
 router.get('/:slug', getProduct)
 
 router.post(

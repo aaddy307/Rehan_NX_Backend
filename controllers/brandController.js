@@ -1,4 +1,5 @@
 import Brand from '../models/Brand.js'
+import Product from '../models/Product.js'
 import { generateSlug } from '../utils/generateSlug.js'
 
 export const getBrands = async (req, res, next) => {
@@ -54,6 +55,10 @@ export const updateBrand = async (req, res, next) => {
       status: status === 'true' || status === true,
     }
 
+    if (name && name !== brand.name) {
+      updateData.slug = await generateSlug(name, Brand)
+    }
+
     const updatedBrand = await Brand.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -76,6 +81,14 @@ export const deleteBrand = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: 'Brand not found',
+      })
+    }
+
+    const productCount = await Product.countDocuments({ brand: brand._id })
+    if (productCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete brand. ${productCount} product(s) are linked to this brand.`,
       })
     }
 

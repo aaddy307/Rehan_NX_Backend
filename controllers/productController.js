@@ -1,5 +1,6 @@
 import Product from '../models/Product.js'
 import Category from '../models/Category.js'
+import Brand from '../models/Brand.js'
 import cloudinary from '../config/cloudinary.js'
 import { generateSlug } from '../utils/generateSlug.js'
 
@@ -34,7 +35,11 @@ export const getProducts = async (req, res, next) => {
     }
 
     if (req.query.brand) {
-      filter.brand = req.query.brand
+      const brandDoc = await Brand.findOne({ slug: req.query.brand })
+      if (!brandDoc) {
+        return res.status(400).json({ success: false, message: 'Brand not found' })
+      }
+      filter.brand = brandDoc._id
     }
 
     if (req.query.featured === 'true') {
@@ -139,7 +144,7 @@ export const createProduct = async (req, res, next) => {
       shortDescription,
       description,
       images,
-      specifications: specifications ? JSON.parse(specifications) : [],
+      specifications: specifications ? (typeof specifications === 'string' ? JSON.parse(specifications) : specifications) : [],
       featured: featured === 'true' || featured === true,
       status: status === 'true' || status === true,
     })
@@ -187,7 +192,7 @@ export const updateProduct = async (req, res, next) => {
       price,
       shortDescription,
       description,
-      specifications: specifications ? JSON.parse(specifications) : [],
+      specifications: specifications ? (typeof specifications === 'string' ? JSON.parse(specifications) : specifications) : [],
       featured: featured === 'true' || featured === true,
       status: status === 'true' || status === true,
     }
@@ -241,6 +246,30 @@ export const updateProduct = async (req, res, next) => {
     res.json({
       success: true,
       product: updatedProduct,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getProductById = async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id)
+      .populate('category', 'name slug')
+      .populate('brand', 'name')
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      })
+    }
+
+    sanitizeProduct(product)
+
+    res.json({
+      success: true,
+      product,
     })
   } catch (error) {
     next(error)
