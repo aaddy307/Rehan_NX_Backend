@@ -18,6 +18,17 @@ export const errorHandler = (err, req, res, next) => {
     message = 'Resource not found'
   }
 
+  if (err.name === 'MulterError') {
+    statusCode = 400
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = 'File too large. Maximum size is 20MB per image.'
+    } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      message = 'Too many files. Maximum 10 images allowed.'
+    } else {
+      message = `Upload error: ${err.message}`
+    }
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

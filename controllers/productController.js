@@ -156,6 +156,7 @@ export const updateProduct = async (req, res, next) => {
       specifications,
       featured,
       status,
+      existingImages,
     } = req.body
 
     const product = await Product.findById(req.params.id)
@@ -182,13 +183,39 @@ export const updateProduct = async (req, res, next) => {
       updateData.slug = await generateSlug(name, Product)
     }
 
+    let keepPublicIds = []
+    if (existingImages) {
+      try {
+        keepPublicIds = JSON.parse(existingImages)
+      } catch {
+        keepPublicIds = []
+      }
+    }
+
+    const toRemove = product.images.filter(
+      (img) => !keepPublicIds.includes(img.publicId)
+    )
+    for (const image of toRemove) {
+      try {
+        await cloudinary.uploader.destroy(image.publicId)
+      } catch (err) {
+        console.error('Error deleting image from Cloudinary:', err)
+      }
+    }
+
+    let remainingImages = product.images.filter((img) =>
+      keepPublicIds.includes(img.publicId)
+    )
+
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map((file) => ({
         publicId: file.public_id,
         url: file.secure_url,
       }))
-      updateData.images = [...product.images, ...newImages]
+      remainingImages = [...remainingImages, ...newImages]
     }
+
+    updateData.images = remainingImages
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,

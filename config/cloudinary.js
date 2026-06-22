@@ -18,7 +18,7 @@ export const storage = (folder) =>
     params: {
       folder,
       allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-      transformation: [{ width: 1000, height: 1000, crop: 'limit' }],
+      transformation: [{ width: 2000, height: 2000, crop: 'limit' }],
     },
   })
 
