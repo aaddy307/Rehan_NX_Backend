@@ -112,8 +112,8 @@ export const createProduct = async (req, res, next) => {
 
     const images = req.files
       ? req.files.map((file) => ({
-          publicId: file.filename,
-          url: file.path,
+          publicId: file.public_id,
+          url: file.secure_url,
         }))
       : []
 
@@ -184,8 +184,8 @@ export const updateProduct = async (req, res, next) => {
 
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map((file) => ({
-        publicId: file.filename,
-        url: file.path,
+        publicId: file.public_id,
+        url: file.secure_url,
       }))
       updateData.images = [...product.images, ...newImages]
     }
