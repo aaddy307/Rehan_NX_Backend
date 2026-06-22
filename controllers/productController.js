@@ -3,6 +3,13 @@ import Category from '../models/Category.js'
 import cloudinary from '../config/cloudinary.js'
 import { generateSlug } from '../utils/generateSlug.js'
 
+const sanitizeProduct = (product) => {
+  if (product.images) {
+    product.images = product.images.filter(img => img && img.url)
+  }
+  return product
+}
+
 export const getProducts = async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1)
@@ -51,6 +58,8 @@ export const getProducts = async (req, res, next) => {
       .skip(skip)
       .limit(limit)
 
+    products.forEach(sanitizeProduct)
+
     res.json({
       success: true,
       products,
@@ -85,6 +94,8 @@ export const getProduct = async (req, res, next) => {
       })
     }
 
+    sanitizeProduct(product)
+
     res.json({
       success: true,
       product,
@@ -111,10 +122,12 @@ export const createProduct = async (req, res, next) => {
     const slug = await generateSlug(name, Product)
 
     const images = req.files
-      ? req.files.map((file) => ({
-          publicId: file.public_id,
-          url: file.secure_url,
-        }))
+      ? req.files
+          .filter(file => file && file.secure_url)
+          .map((file) => ({
+            publicId: file.public_id,
+            url: file.secure_url,
+          }))
       : []
 
     const product = await Product.create({
@@ -208,10 +221,12 @@ export const updateProduct = async (req, res, next) => {
     )
 
     if (req.files && req.files.length > 0) {
-      const newImages = req.files.map((file) => ({
-        publicId: file.public_id,
-        url: file.secure_url,
-      }))
+      const newImages = req.files
+        .filter(file => file && file.secure_url)
+        .map((file) => ({
+          publicId: file.public_id,
+          url: file.secure_url,
+        }))
       remainingImages = [...remainingImages, ...newImages]
     }
 
