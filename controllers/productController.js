@@ -20,6 +20,8 @@ export const getProducts = async (req, res, next) => {
     const filter = {}
     if (req.query.all !== 'true') {
       filter.status = true
+    } else if (req.query.status) {
+      filter.status = req.query.status === 'active'
     }
 
     if (req.query.search) {
